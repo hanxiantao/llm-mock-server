@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"llm-mock-server/provider/openai"
 )
@@ -11,8 +13,16 @@ type ChatCompletionsHandler interface {
 	HandleChatCompletions(context *gin.Context)
 }
 
-func NewChatCompletionsHandlers() []ChatCompletionsHandler {
-	return []ChatCompletionsHandler{
-		&openai.Provider{},
+var chatCompletionsHandlers = []ChatCompletionsHandler{
+	&openai.Provider{},
+}
+
+func HandleChatCompletions(context *gin.Context) {
+	for _, handler := range chatCompletionsHandlers {
+		if handler.ShouldHandleRequest(context) {
+			handler.HandleChatCompletions(context)
+			return
+		}
 	}
+	context.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
 }

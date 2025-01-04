@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -24,17 +23,7 @@ func main() {
 	}
 	server := gin.Default()
 	server.Use(CORS())
-
-	handlers := provider.NewChatCompletionsHandlers()
-	server.POST("/v1/chat/completions", func(context *gin.Context) {
-		for _, handler := range handlers {
-			if handler.ShouldHandleRequest(context) {
-				handler.HandleChatCompletions(context)
-				return // 提前返回，避免不必要的循环
-			}
-		}
-		context.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
-	})
+	server.POST("/v1/chat/completions", provider.HandleChatCompletions)
 
 	log.Printf("Starting server on port %d", port)
 	if err := server.Run(":" + strconv.Itoa(port)); err != nil {
