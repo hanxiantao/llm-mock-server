@@ -15,8 +15,8 @@ const (
 )
 
 type chatCompletionRequest struct {
-	Model            string                 `json:"model"`
-	Messages         []chatMessage          `json:"messages"`
+	Model            string                 `json:"model" validate:"required"`
+	Messages         []chatMessage          `json:"messages" validate:"required,min=1"`
 	MaxTokens        int                    `json:"max_tokens,omitempty"`
 	FrequencyPenalty float64                `json:"frequency_penalty,omitempty"`
 	N                int                    `json:"n,omitempty"`

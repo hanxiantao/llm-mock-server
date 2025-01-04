@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"llm-mock-server/utils"
 )
@@ -24,11 +25,16 @@ func (p *Provider) HandleChatCompletions(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	prompt := "This is a mock server."
-	if len(chatRequest.Messages) != 0 {
-		if chatRequest.Messages[len(chatRequest.Messages)-1].IsStringContent() {
-			prompt = chatRequest.Messages[len(chatRequest.Messages)-1].StringContent()
+	if err := utils.Validate.Struct(chatRequest); err != nil {
+		validationErrors := err.(validator.ValidationErrors)
+		for _, fieldError := range validationErrors {
+			context.JSON(http.StatusBadRequest, gin.H{"error": fieldError.Error()})
+			return
 		}
+	}
+	prompt := "This is a mock server."
+	if chatRequest.Messages[len(chatRequest.Messages)-1].IsStringContent() {
+		prompt = chatRequest.Messages[len(chatRequest.Messages)-1].StringContent()
 	}
 	response := utils.Prompt2Response(prompt)
 
