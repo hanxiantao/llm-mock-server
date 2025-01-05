@@ -1,4 +1,4 @@
-package openai
+package chat
 
 import (
 	"encoding/json"
@@ -12,14 +12,14 @@ import (
 	"llm-mock-server/utils"
 )
 
-type Provider struct {
+type openAiProvider struct {
 }
 
-func (p *Provider) ShouldHandleRequest(context *gin.Context) bool {
+func (p *openAiProvider) ShouldHandleRequest(context *gin.Context) bool {
 	return true
 }
 
-func (p *Provider) HandleChatCompletions(context *gin.Context) {
+func (p *openAiProvider) HandleChatCompletions(context *gin.Context) {
 	var chatRequest chatCompletionRequest
 	if err := context.ShouldBindJSON(&chatRequest); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -65,10 +65,10 @@ func (p *Provider) HandleChatCompletions(context *gin.Context) {
 		context.Stream(func(w io.Writer) bool {
 			select {
 			case data := <-dataChan:
-				context.Render(-1, CustomEvent{Data: "data: " + data})
+				context.Render(-1, streamEvent{Data: "data: " + data})
 				return true
 			case <-stopChan:
-				context.Render(-1, CustomEvent{Data: "data: [DONE]"})
+				context.Render(-1, streamEvent{Data: "data: [DONE]"})
 				return false
 			}
 		})

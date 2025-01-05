@@ -1,4 +1,4 @@
-package openai
+package chat
 
 import (
 	"fmt"
@@ -35,14 +35,14 @@ var dataReplacer = strings.NewReplacer(
 	"\n", "\ndata:",
 	"\r", "\\r")
 
-type CustomEvent struct {
+type streamEvent struct {
 	Event string
 	Id    string
 	Retry uint
 	Data  interface{}
 }
 
-func encode(writer io.Writer, event CustomEvent) error {
+func encode(writer io.Writer, event streamEvent) error {
 	w := checkWriter(writer)
 	return writeData(w, event.Data)
 }
@@ -55,12 +55,12 @@ func writeData(w stringWriter, data interface{}) error {
 	return nil
 }
 
-func (r CustomEvent) Render(w http.ResponseWriter) error {
+func (r streamEvent) Render(w http.ResponseWriter) error {
 	r.WriteContentType(w)
 	return encode(w, r)
 }
 
-func (r CustomEvent) WriteContentType(w http.ResponseWriter) {
+func (r streamEvent) WriteContentType(w http.ResponseWriter) {
 	header := w.Header()
 	header["Content-Type"] = contentType
 

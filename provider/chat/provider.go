@@ -1,20 +1,20 @@
-package provider
+package chat
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"llm-mock-server/provider/openai"
+	"llm-mock-server/provider"
 )
 
-type ChatCompletionsHandler interface {
-	ShouldHandleRequest(context *gin.Context) bool
+type requestHandler interface {
+	provider.CommonRequestHandler
 
 	HandleChatCompletions(context *gin.Context)
 }
 
-var chatCompletionsHandlers = []ChatCompletionsHandler{
-	&openai.Provider{},
+var chatCompletionsHandlers = []requestHandler{
+	&openAiProvider{},
 }
 
 func HandleChatCompletions(context *gin.Context) {

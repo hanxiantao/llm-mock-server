@@ -7,7 +7,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"llm-mock-server/provider"
+	"llm-mock-server/provider/chat"
+	"llm-mock-server/provider/embeddings"
 )
 
 var port int
@@ -23,7 +24,8 @@ func main() {
 	}
 	server := gin.Default()
 	server.Use(CORS())
-	server.POST("/v1/chat/completions", provider.HandleChatCompletions)
+	server.POST("/v1/chat/completions", chat.HandleChatCompletions)
+	server.POST("/v1/embeddings", embeddings.HandleEmbeddings)
 
 	log.Printf("Starting server on port %d", port)
 	if err := server.Run(":" + strconv.Itoa(port)); err != nil {
