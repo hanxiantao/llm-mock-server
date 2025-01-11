@@ -1,24 +1,26 @@
-package embeddings
+package chat
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"llm-mock-server/provider"
+	"llm-mock-server/pkg/provider"
 )
 
 type requestHandler interface {
 	provider.CommonRequestHandler
 
-	HandleEmbeddings(context *gin.Context)
+	HandleChatCompletions(context *gin.Context)
 }
 
-var chatCompletionsHandlers = []requestHandler{}
+var chatCompletionsHandlers = []requestHandler{
+	&openAiProvider{},
+}
 
-func HandleEmbeddings(context *gin.Context) {
+func HandleChatCompletions(context *gin.Context) {
 	for _, handler := range chatCompletionsHandlers {
 		if handler.ShouldHandleRequest(context) {
-			handler.HandleEmbeddings(context)
+			handler.HandleChatCompletions(context)
 			return
 		}
 	}
